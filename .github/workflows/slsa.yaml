@@ -1,0 +1,75 @@
+name: slsa_provenance_create
+
+on:
+  workflow_call:
+    inputs:
+      image_digest:
+        description: 'Fully-qualified image digest to verify (registry/image@sha256:digest)'
+        required: true
+        type: string
+      registry:
+        description: 'Image registry (e.g. gcr.io)'
+        type: string
+        required: false
+        default: 'ghcr.io'
+      cosign_version:
+        description: 'The version of cosign to use'
+        required: false
+        type: string
+        default: 'v1.13.1'
+
+permissions:
+  contents: read
+
+jobs:
+
+  conf:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      image: ${{ steps.conf.outputs.image }}
+      digest: ${{ steps.conf.outputs.digest }}
+    steps:
+    - name: Export Config
+      id: conf
+      run: |
+        echo "image=$(echo ${{ inputs.image_digest }} | cut -d@ -f1)" >> $GITHUB_OUTPUT
+        echo "digest=$(echo ${{ inputs.image_digest }} | cut -d@ -f2)" >> $GITHUB_OUTPUT
+
+  provenance:
+    needs:
+    - conf
+    permissions:
+      actions: read
+      id-token: write
+      packages: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.5.0
+    with:
+      image: ${{ needs.conf.outputs.image }}
+      digest: ${{ needs.conf.outputs.digest }}
+      registry-username: ${{ github.actor }}
+    secrets:
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  verify:
+    needs:
+    - provenance
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      id-token: write
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f  # v3.4.0
+
+    - uses: slsa-framework/slsa-verifier/actions/installer@a43888265e1f6aae98c924538298944f2721dcf0  # v2.0.1
+
+    - name: Verify SLSA Provenance
+      run: |-
+        set -euo pipefail
+        slsa-verifier version
+        slsa-verifier verify-image ${{ inputs.image_digest }} \
+          --source-uri "github.com/$GITHUB_REPOSITORY" \
+          --source-tag "$GITHUB_REF_NAME"

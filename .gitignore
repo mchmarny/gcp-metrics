@@ -1,0 +1,23 @@
+# Mac 
+.DS_Store
+
+# Test binaries
+*.test
+tmp
+/*.json
+*.tmp
+
+# Coverage
+*.out
+
+# Binaries
+bin
+dist
+
+# Keys 
+cosign.*
+*.pem
+
+# IDEs
+.idea/*
+.vscode/*
