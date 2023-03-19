@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/mchmarny/gcp-metrics/pkg/metric"
@@ -34,7 +35,7 @@ func main() {
 		"actor":    ctx.Actor,
 		"event":    ctx.EventName,
 		"job":      ctx.Job,
-		"ref":      ctx.BaseRef,
+		"ref":      parseTag(ctx.Ref),
 		"repo":     ctx.Repository,
 		"run":      strconv.FormatInt(ctx.RunID, int64Base),
 		"sha":      ctx.SHA,
@@ -88,4 +89,8 @@ func getCounter(projectID string) (metric.Counter, error) {
 		return metric.NewConsoleCounter(), nil
 	}
 	return metric.New(projectID)
+}
+
+func parseTag(v string) string {
+	return strings.ReplaceAll(v, "refs/tags/", "")
 }
