@@ -1,57 +1,49 @@
 # gcp-metrics
 
-GitHub Actions action to create custom metrics in Google Cloud.
+GitHub Actions action to create custom time-series metrics in Google Cloud.
 
-## Prerequisites
+> This action requires Google Cloud credentials that are authorized to access the secrets being requested. See [workload identity](#workload-identity) section for more information.
 
-* This action requires Google Cloud credentials that are authorized to access the secrets being requested. See [Authorization](#authorization) for more information.
+## usage
 
-## Usage
+To use this action in your GitHub Actions workflow: 
+
+> Complete working example is available in [.github/workflows/meter.yaml](.github/workflows/meter.yaml).
 
 ```yaml
-jobs:
-  job_id:
-    # ...
+- id: meter
+  name: Record Metric
+  uses: mchmarny/gcp-metrics@main  # pin this to the latest release (e.g. v0.1.0)
+  with:
+    project: my-project-id
+    metric: image-build
+    value: 1
 
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: google-github-actions/auth@v1
-      with:
-        workload_identity_provider: projects/123456789/locations/global/workloadIdentityPools/pool/providers/provider
-        service_account: service-account@my-project.iam.gserviceaccount.com
-
-    - id: meter
-      uses: mchmarny/gcp-metrics@main
-      with:
-        project: ${{ inputs.project }}
-        metric: ${{ inputs.metric }}
-        value: ${{ inputs.value }}
-
-    - name: Print Output
-      run: |
-        echo "metric: ${{ steps.meter.outputs.metric }}"
-        echo "value: ${{ steps.meter.outputs.value }}"
+- name: Print Output
+  run: |
+    echo "metric: ${{ steps.meter.outputs.metric }}"
+    echo "value: ${{ steps.meter.outputs.value }}"
 ```
 
-## Inputs
+The resulting custom metric in GCP Metrics Explorer would look something like this:
 
--   `project`: (Required) ID of the GCP project where you want to these metrics to be recorded.
+![](images/metric.png)
 
--   `metric`: (Required) Name of the metrics you want to create (e.g. `build-count`).
+> Hopefully your metrics are more than just the single point in this example. 
 
--   `value`: (Required) Numeric value you want to record for the above `metric` (e.g. `1`).
+## inputs
 
-## workload identity setup 
+The `mchmarny/gcp-metrics` workflow requires the following input parameters:
 
-GCP Workload Identity enables keyless authentication from GitHub Actions to GCP. No GCP service account keys and GCP secrets required. You can follow the instructions on how to set it up in your project [here](https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions), or you can use the Terraform setup in this repo. 
+* `project`: (Required) ID of the GCP project where you want to these metrics to be recorded.
+* `metric`: (Required) Name of the metrics you want to create (e.g. `build-count`).
+* `value`: (Required) Numeric value you want to record for the above `metric` (e.g. `1`).
 
+## workload identity 
 
-### setup
+GCP Workload Identity enables keyless authentication from GitHub Actions to GCP. No GCP service account keys and GCP secrets required. You can follow the instructions on how to set it up in your project [here](https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions), or you can use the Terraform setup in this repo to automate the entire process.
+
+#### terraform setup
   
 To deploy Workload Identity into your GCP project, first, close this repo:
 
@@ -65,7 +57,7 @@ Next, navigate to the `setup` directory inside of that cloned repo:
 cd setup
 ```
 
-Next, authenticate to GCP:
+Authenticate to GCP:
 
 ```shell
 gcloud auth application-default login
@@ -76,8 +68,6 @@ Initialize Terraform:
 ```shell
 terraform init
 ```
-
-> Note, this flow uses the default, local terraform state. Make sure you do not check the state files into your source control (see `.gitignore`), or consider using persistent state provider like GCS.
 
 When done, apply the Terraform configuration:
 
@@ -105,6 +95,8 @@ Paste the output values into the `google-github-actions/auth` parameters:
     workload_identity_provider: <PROVIDER_ID>
     service_account: <SA_EMAIL>
 ```
+
+> Working example available in [.github/workflows/meter.yaml](.github/workflows/meter.yaml).
 
 ## disclaimer
 
