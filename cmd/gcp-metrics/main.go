@@ -63,6 +63,8 @@ func main() {
 		"sha":    ctx.SHA,
 	}
 
+	a.Infof("counting metric %s with value %d...", metricName, countVal)
+
 	if err := counter.Count(context.Background(), metricName, countVal, labels); err != nil {
 		a.Fatalf("error counting metric: %s", err)
 	}

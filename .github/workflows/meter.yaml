@@ -3,11 +3,6 @@ name: meter
 on:
   workflow_call:
     inputs:
-      project:
-        description: 'GCP project ID'
-        required: true
-        type: string
-        default: 'cloudy-tools'
       metric:
         description: 'Metric name'
         required: true
@@ -46,6 +41,6 @@ jobs:
     - id: record
       uses: mchmarny/gcp-metrics@main  # pinned to digest in real use
       with:
-        project: ${{ inputs.project }}
+        project: cloudy-tools
         metric: ${{ inputs.metric }}
         value: ${{ inputs.value }}
