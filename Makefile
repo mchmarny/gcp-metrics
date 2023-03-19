@@ -63,6 +63,7 @@ build: tidy ## Builds CLI binary
 .PHONY: image
 image: tidy ## Builds Docker image
 	docker build \
+		--build-arg VERSION=$(RELEASE_VERSION) \
 		-t ghcr.io/$(REPO):$(RELEASE_VERSION) \
 		-f cmd/gcp-metrics/Dockerfile \
 		.

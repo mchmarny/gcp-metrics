@@ -5,6 +5,11 @@ import (
 	"fmt"
 )
 
+// NewConsoleCounter returns a new ConsoleCounter.
+func NewConsoleCounter() Counter {
+	return &ConsoleCounter{}
+}
+
 // Counter is the interface for metric implementations.
 type ConsoleCounter struct {
 }
