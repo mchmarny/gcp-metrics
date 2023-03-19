@@ -27,7 +27,7 @@ To use this action in your GitHub Actions workflow:
 
 The resulting custom metric in GCP Metrics Explorer would look something like this:
 
-![](images/metric.png)
+![](images/dash.png)
 
 > Hopefully your metrics are more than just the single point in this example. 
 
