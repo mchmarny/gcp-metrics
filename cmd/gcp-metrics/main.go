@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mchmarny/template-action/pkg/action"
+	"github.com/mchmarny/gcp-metrics/pkg/action"
 	gha "github.com/sethvargo/go-githubactions"
 )
 

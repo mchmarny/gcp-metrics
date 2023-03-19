@@ -1,4 +1,4 @@
-module github.com/mchmarny/template-action
+module github.com/mchmarny/gcp-metrics
 
 go 1.20
 

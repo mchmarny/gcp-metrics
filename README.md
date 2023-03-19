@@ -1,4 +1,4 @@
-# template-action
+# gcp-metrics
 
 Template repo for creating new GitHub Actions using Go. Bootstraps fully functional action so you can focus on writing the code. Includes: 
 
@@ -64,7 +64,7 @@ Navigate to `/actions` in your repo to see the status of that release pipeline. 
 
 When successfully completed, that pipeline will create an image. Navigate to the your repo packages to review.
 
-https://github.com/YOUR-USERNAME-OR-ORG/template-action/pkgs/container/action
+https://github.com/YOUR-USERNAME-OR-ORG/gcp-metrics/pkgs/container/action
 
 The image is the line item tagged with version (e.g. `v0.0.1`). The other two OCI artifacts named with the image digest in the registry are signature (`.sig`) and attestation (`.att`).
 
@@ -89,7 +89,7 @@ COSIGN_EXPERIMENTAL=1 cosign verify-attestation \
 The terminal output will include the checks that were executed as part of the validation, as well as information about the subject (URI of the tag ref that triggered that workflow), with its SHA, name, and Ref.
 
 ```shell
-Verification for ghcr.io/mchmarny/template-action@sha256:54c4d185322c87d05835f2f9ac72526ee5ada36a6145993adf87bd9c271334f5 --
+Verification for ghcr.io/mchmarny/gcp-metrics@sha256:54c4d185322c87d05835f2f9ac72526ee5ada36a6145993adf87bd9c271334f5 --
 The following checks were performed on each of these signatures:
   - The cosign claims were validated
   - Existence of the claims in the transparency log was verified offline
@@ -99,7 +99,7 @@ Certificate issuer URL:  https://token.actions.githubusercontent.com
 GitHub Workflow Trigger: push
 GitHub Workflow SHA: 45e3420e89478ccd0ffd97b8ee209eb5a5c59c69
 GitHub Workflow Name: on_tag
-GitHub Workflow Trigger mchmarny/template-action
+GitHub Workflow Trigger mchmarny/gcp-metrics
 GitHub Workflow Ref: refs/tags/v0.0.1
 ```
 
@@ -126,7 +126,7 @@ The `payload` field (abbreviated) is the base64 encoded [in-toto statement](http
     "predicateType": "https://slsa.dev/provenance/v0.2",
     "subject": [
         {
-            "name": "ghcr.io/mchmarny/template-action",
+            "name": "ghcr.io/mchmarny/gcp-metrics",
             "digest": {
                 "sha256": "54c4d185322c87d05835f2f9ac72526ee5ada36a6145993adf87bd9c271334f5"
             }

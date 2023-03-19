@@ -7,7 +7,7 @@ ENV VERSION=${VERSION}
 RUN CGO_ENABLED=0 go build -a -trimpath -ldflags="\
     -w -s -X main.version=$VERSION \
 	-extldflags '-static'" \
-    -mod vendor -o app cmd/template-action/main.go
+    -mod vendor -o app cmd/gcp-metrics/main.go
 
 FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
