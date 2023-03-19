@@ -35,16 +35,16 @@ func main() {
 		a.Fatalf("error creating metric: %s", err)
 	}
 
-	metricName := a.GetInput("name")
+	metricName := a.GetInput("metric")
 	if metricName == "" {
-		a.Fatalf("name is required")
+		a.Fatalf("metric is required")
 	}
 
-	countValStr := a.GetInput("count")
-	if countValStr == "" {
+	valueStr := a.GetInput("value")
+	if valueStr == "" {
 		a.Fatalf("count is required")
 	}
-	countVal, err := strconv.ParseInt(countValStr, 10, 64)
+	metricVal, err := strconv.ParseInt(valueStr, 10, 64)
 	if err != nil {
 		a.Fatalf("error parsing count: %s", err)
 	}
@@ -63,13 +63,13 @@ func main() {
 		"sha":    ctx.SHA,
 	}
 
-	a.Infof("counting metric %s with value %d...", metricName, countVal)
+	a.Infof("counting metric %s with value %d...", metricName, metricVal)
 
-	if err := counter.Count(context.Background(), metricName, countVal, labels); err != nil {
+	if err := counter.Count(context.Background(), metricName, metricVal, labels); err != nil {
 		a.Fatalf("error counting metric: %s", err)
 	}
 
 	// set output
 	a.SetOutput("metric", metricName)
-	a.SetOutput("value", strconv.FormatInt(countVal, int64Base))
+	a.SetOutput("value", strconv.FormatInt(metricVal, int64Base))
 }
