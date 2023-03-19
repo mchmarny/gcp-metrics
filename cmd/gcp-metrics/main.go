@@ -92,5 +92,12 @@ func getCounter(projectID string) (metric.Counter, error) {
 }
 
 func parseTag(v string) string {
-	return strings.ReplaceAll(v, "refs/tags/", "")
+	if v == "" {
+		return "main"
+	}
+	p := strings.Split(v, "/")
+	if len(p) == 0 {
+		return "main"
+	}
+	return p[len(p)-1]
 }
