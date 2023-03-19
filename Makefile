@@ -43,7 +43,7 @@ cover: test ## Runs unit tests and putputs coverage
 lint: lint-go lint-yaml ## Lints the entire repo 
 	@echo "Completed Go and YAML lints"
 
-.PHONY: lint
+.PHONY: lint-go
 lint-go: ## Lints the entire repo using go 
 	golangci-lint run -c .golangci.yaml
 
