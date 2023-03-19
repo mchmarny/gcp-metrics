@@ -1,15 +1,17 @@
 package main
 
 import (
+	"context"
 	"strconv"
 	"time"
 
-	"github.com/mchmarny/gcp-metrics/pkg/action"
+	"github.com/mchmarny/gcp-metrics/pkg/metric"
 	gha "github.com/sethvargo/go-githubactions"
 )
 
 var (
-	version = "v0.0.1-default"
+	version   = "v0.0.1-default"
+	int64Base = 10
 )
 
 func main() {
@@ -23,23 +25,49 @@ func main() {
 	a.Infof("starting action")
 	defer a.Infof("action completed")
 
-	// parse optional input
-	isReq, _ := strconv.ParseBool(a.GetInput("required"))
-	a.Debugf("required: %t", isReq)
-
-	// create request
-	req := &action.Request{
-		File:     a.GetInput("file"),
-		Required: isReq,
+	projectID := a.GetInput("project")
+	if projectID == "" {
+		a.Fatalf("project is required")
 	}
 
-	// execute action with the request
-	res, err := action.Execute(req)
+	counter, err := metric.New(projectID)
 	if err != nil {
-		a.Fatalf("error: %s", err)
+		a.Fatalf("error creating metric: %s", err)
+	}
+
+	metricName := a.GetInput("name")
+	if metricName == "" {
+		a.Fatalf("name is required")
+	}
+
+	countValStr := a.GetInput("count")
+	if countValStr == "" {
+		a.Fatalf("count is required")
+	}
+	countVal, err := strconv.ParseInt(countValStr, 10, 64)
+	if err != nil {
+		a.Fatalf("error parsing count: %s", err)
+	}
+
+	ctx, err := a.Context()
+	if err != nil {
+		a.Fatalf("error getting context: %s", err)
+	}
+
+	labels := map[string]string{
+		"action": ctx.Action,
+		"actor":  ctx.Actor,
+		"run":    strconv.FormatInt(ctx.RunID, int64Base),
+		"repo":   ctx.Repository,
+		"ref":    ctx.Ref,
+		"sha":    ctx.SHA,
+	}
+
+	if err := counter.Count(context.Background(), metricName, countVal, labels); err != nil {
+		a.Fatalf("error counting metric: %s", err)
 	}
 
 	// set output
-	a.SetOutput("output", res.Value)
-	a.SetOutput("processed_on", res.ProcessedOnUTC())
+	a.SetOutput("metric", metricName)
+	a.SetOutput("value", strconv.FormatInt(countVal, int64Base))
 }

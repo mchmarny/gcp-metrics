@@ -77,24 +77,25 @@ jobs:
     with:
       image_digest: ${{ needs.build.outputs.digest }}
 
-  valid:
+  meter:
     needs:
     - build
     permissions:
       contents: read
-    uses: ./.github/workflows/valid.yaml
+      id-token: write
+    uses: ./.github/workflows/meter.yaml
     with:
-      file: ${{ needs.build.outputs.digest }}
-      required: false
+      metric: "image-builds"
+      value: 1
 
   print:
     needs:
-    - valid
+    - meter
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
     - name: Print Output
       run: |
-        echo "output: ${{ needs.valid.outputs.output }}"
-        echo "processed_on: ${{ needs.valid.outputs.processed_on }}"
+        echo "metric: ${{ needs.meter.outputs.metric }}"
+        echo "value: ${{ needs.meter.outputs.value }}"

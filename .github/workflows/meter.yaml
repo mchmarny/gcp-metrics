@@ -1,0 +1,51 @@
+name: meter
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        description: 'GCP project ID'
+        required: true
+        type: string
+        default: 'cloudy-tools'
+      metric:
+        description: 'Metric name'
+        required: true
+        type: string
+      value:
+        description: 'Metric value'
+        required: true
+        type: number
+    outputs:
+      metric:
+        value: ${{ jobs.meter.outputs.metric }}
+      value:
+        value: ${{ jobs.meter.outputs.value }}
+
+permissions:
+  contents: read
+
+jobs:
+  meter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      metric: ${{ steps.record.outputs.metric }}
+      value: ${{ steps.record.outputs.value }}
+    steps:
+
+    - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f  # v3.4.0
+
+    - uses: google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d  # v1.0.0
+      with:
+        workload_identity_provider: projects/382826505963/locations/global/workloadIdentityPools/metrics-github-pool/providers/github-provider
+        service_account: metrics-github-actions-user@cloudy-tools.iam.gserviceaccount.com
+
+    - id: record
+      uses: mchmarny/gcp-metrics@main  # pinned to digest in real use
+      with:
+        project: ${{ inputs.project }}
+        metric: ${{ inputs.metric }}
+        value: ${{ inputs.value }}

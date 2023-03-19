@@ -1,144 +1,110 @@
 # gcp-metrics
 
-Template repo for creating new GitHub Actions using Go. Bootstraps fully functional action so you can focus on writing the code. Includes: 
+GitHub Actions action to create custom metrics in Google Cloud.
 
-* PR Qualification (on-push to the repo)
-  * Go and YAML linting 
-  * Static code analysis and vulnerability scanning
-  * Unit test
-* Release (on git tag in the repo)
-  * All PR qualification test
-  * Image build (scratch + single binary)
-  * Image SBOM generation and attestation signing
-  * SLSA provenance generation and validation 
-  * Integration test in GitHub Actions action
-* Repo hygiene 
-  * Go, GitHub Actions, and Docker dependabot update configuration 
-  * Scorecards analysis with in-repo Sarif report
-  * Code test coverage report 
+## Prerequisites
 
-## template usage
+* This action requires Google Cloud credentials that are authorized to access the secrets being requested. See [Authorization](#authorization) for more information.
 
-To create a new repo, click the green `Use this Template` button and follow the wizard. When done, clone your new repo locally, and navigate into it:
+## Usage
+
+```yaml
+jobs:
+  job_id:
+    # ...
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: google-github-actions/auth@v1
+      with:
+        workload_identity_provider: projects/123456789/locations/global/workloadIdentityPools/pool/providers/provider
+        service_account: service-account@my-project.iam.gserviceaccount.com
+
+    - id: meter
+      uses: mchmarny/gcp-metrics@main
+      with:
+        project: ${{ inputs.project }}
+        metric: ${{ inputs.metric }}
+        value: ${{ inputs.value }}
+
+    - name: Print Output
+      run: |
+        echo "metric: ${{ steps.meter.outputs.metric }}"
+        echo "value: ${{ steps.meter.outputs.value }}"
+```
+
+## Inputs
+
+-   `project`: (Required) ID of the GCP project where you want to these metrics to be recorded.
+
+-   `metric`: (Required) Name of the metrics you want to create (e.g. `build-count`).
+
+-   `value`: (Required) Numeric value you want to record for the above `metric` (e.g. `1`).
+
+## workload identity setup 
+
+GCP Workload Identity enables keyless authentication from GitHub Actions to GCP. No GCP service account keys and GCP secrets required. You can follow the instructions on how to set it up in your project [here](https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions), or you can use the Terraform setup in this repo. 
+
+
+### setup
+  
+To deploy Workload Identity into your GCP project, first, close this repo:
 
 ```shell
-git clone git@github.com:$GIT_HUB_USERNAME/$REPO_NAME.git
-cd $REPO_NAME
+git@github.com:mchmarny/gcp-metrics.git
 ```
 
-Initialize your new repo. This will update all the references to your newly clone GitHub repository.
+Next, navigate to the `setup` directory inside of that cloned repo:
 
 ```shell
-tools/init
+cd setup
 ```
 
-When completed, commit and push the updates to your repository: 
+Next, authenticate to GCP:
 
 ```shell
-git add --all
-git commit -m 'repo init'
-git push --all
+gcloud auth application-default login
 ```
 
-> The above push will trigger the `on-push` flow. You can navigate to the `/actions` in your repo to see the status of that pipeline. 
-
-#### trigger release pipeline
-
-The canonical version of the entire repo is stored in [.version](.version) file. Feel free to edit it (by default: `v0.0.1`). When done, trigger the release pipeline:
-
-> If you did edit the version, make sure to commit and push that change to the repo first. You can also use `make tag` to automate the entire process.
+Initialize Terraform: 
 
 ```shell
-export VERSION=$(cat .version)
-git tag -s -m "initial release" $VERSION
-git push origin $VERSION
+terraform init
 ```
 
-#### monitor the pipeline 
+> Note, this flow uses the default, local terraform state. Make sure you do not check the state files into your source control (see `.gitignore`), or consider using persistent state provider like GCS.
 
-Navigate to `/actions` in your repo to see the status of that release pipeline. Wait until all steps (aka jobs) have completed (green). 
-
-> If any steps fail, click on them to see the cause. Fix it, commit/push changes to the repo, and tag a new release to re-trigger the pipeline again.
-
-#### review produced image
-
-When successfully completed, that pipeline will create an image. Navigate to the your repo packages to review.
-
-https://github.com/YOUR-USERNAME-OR-ORG/gcp-metrics/pkgs/container/action
-
-The image is the line item tagged with version (e.g. `v0.0.1`). The other two OCI artifacts named with the image digest in the registry are signature (`.sig`) and attestation (`.att`).
-
-You can now take the image digest and query sigstore transparency service (Rekor). Easiest way to do that is to use the Chainguard's [rekor-search-ui](https://github.com/chainguard-dev/rekor-search-ui). Here is the entry for [v0.0.1](https://rekor.tlog.dev/?hash=sha256:54c4d185322c87d05835f2f9ac72526ee5ada36a6145993adf87bd9c271334f5).
-
-#### provenance verification  
-
-Whenever you tag a release in the repo and an image is push to the registry, that image has an "attached" attestation in a form of [SLSA provenance (v0.2)](https://slsa.dev/provenance/v0.2). This allows you to trace that image all the way to its source in the repo (including the GitHub Actions that were used to generate it). That ability for verifiable traceability is called provenance. 
-
-For example on how to verify the provenance of an image that was generated by the `on-tag` pipeline using cosign:
+When done, apply the Terraform configuration:
 
 ```shell
-COSIGN_EXPERIMENTAL=1 cosign verify-attestation \
-   --type slsaprovenance \
-   --certificate-identity-regexp "^https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v[0-9]+.[0-9]+.[0-9]+$" \
-   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-   $IMAGE_DIGEST
+terraform apply
 ```
 
-> The `COSIGN_EXPERIMENTAL` environment variable is necessary to verify the image with the transparency log until cosign v2 lands.
+When promoted, provide requested variables:
 
-The terminal output will include the checks that were executed as part of the validation, as well as information about the subject (URI of the tag ref that triggered that workflow), with its SHA, name, and Ref.
+* `project_id` is the GCP project ID (not the name)
+* `git_repo` qualified name of the newly cloned repo (e.g. `your-github-username/your-repo-name`)
+
+When completed, this will output the configured resource information looking something like this:
 
 ```shell
-Verification for ghcr.io/mchmarny/gcp-metrics@sha256:54c4d185322c87d05835f2f9ac72526ee5ada36a6145993adf87bd9c271334f5 --
-The following checks were performed on each of these signatures:
-  - The cosign claims were validated
-  - Existence of the claims in the transparency log was verified offline
-  - The code-signing certificate was verified using trusted certificate authority certificates
-Certificate subject:  https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v1.5.0
-Certificate issuer URL:  https://token.actions.githubusercontent.com
-GitHub Workflow Trigger: push
-GitHub Workflow SHA: 45e3420e89478ccd0ffd97b8ee209eb5a5c59c69
-GitHub Workflow Name: on_tag
-GitHub Workflow Trigger mchmarny/gcp-metrics
-GitHub Workflow Ref: refs/tags/v0.0.1
+PROVIDER_ID = "projects/12345678/locations/global/workloadIdentityPools/metrics-github-pool/providers/github-provider"
+SA_EMAIL = "metrics-github-actions-user@PROJECT_ID.iam.gserviceaccount.com"
 ```
 
-The output will also include JSON, which looks something like this (`payload` abbreviated): 
+Paste the output values into the `google-github-actions/auth` parameters:
 
-```json
-{
-   "payloadType": "application/vnd.in-toto+json",
-   "payload": "eyJfdHl...V19fQ==",
-   "signatures": [
-      {
-         "keyid": "",
-         "sig": "MEUCIQCl+9dSv9f9wqHTF9D6L1bizNJbrZwYz0oDtjQ1wiqmLwIgE1T1LpwVd5+lOnalkYzNftTup//6H9i6wKDoCNNhpeo="
-      }
-   ]
-}
+```yaml
+- uses: google-github-actions/auth@v1
+  with:
+    workload_identity_provider: <PROVIDER_ID>
+    service_account: <SA_EMAIL>
 ```
-
-The `payload` field (abbreviated) is the base64 encoded [in-toto statement](https://in-toto.io/) containing the predicate containing the GitHub Actions provenance:
-
-```json
-{
-    "_type": "https://in-toto.io/Statement/v0.1",
-    "predicateType": "https://slsa.dev/provenance/v0.2",
-    "subject": [
-        {
-            "name": "ghcr.io/mchmarny/gcp-metrics",
-            "digest": {
-                "sha256": "54c4d185322c87d05835f2f9ac72526ee5ada36a6145993adf87bd9c271334f5"
-            }
-        }
-    ],
-    "predicate": {...}
-}
-```
-
-## action usage 
-
-Fow example on how to use the resulting actions in GitHub Actions see [.github/workflows/valid.yaml](.github/workflows/valid.yaml).
 
 ## disclaimer
 

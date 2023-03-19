@@ -1,22 +1,24 @@
-name: demo-action
-description: 'Demo action'
+name: gcp-metric
+description: 'Records a metric to GCP Monitoring'
 author: mchmarny
 branding:
   icon: arrow-up
   color: gray-dark
 inputs:
-  file:
-    description: 'File path'
+  project:
+    description: 'GCP project ID'
     required: true
-  required:
-    description: 'Whether or not it is required'
-    required: false
-    default: "false"
+  name:
+    description: 'Metric name'
+    required: true
+  value:
+    description: 'Metric value'
+    required: true
 outputs:
-  output:
-    description: 'The main output of this action'
-  processed_on:
-    description: 'The time when this action was processed'
+  metric:
+    description: 'Recorded metric'
+  value:
+    description: 'Recorded value'
 
 runs:
   using: docker
