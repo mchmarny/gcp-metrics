@@ -44,7 +44,7 @@ jobs:
         service_account: ${{ env.SERVICE_ACCOUNT }}}
 
     - id: record
-      uses: mchmarny/gcp-metrics@dac78e1fa8079e6638437695a9b576cba677bdbb
+      uses: mchmarny/gcp-metrics@9b23950788c1301bdf28642a89d939cb6791f4a4
       with:
         project: ${{ env.PROJECT_ID }}}
         metric: ${{ inputs.metric }}
