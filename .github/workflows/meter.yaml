@@ -29,6 +29,8 @@ jobs:
     outputs:
       metric: ${{ steps.record.outputs.metric }}
       value: ${{ steps.record.outputs.value }}
+    env:
+      PROJECT_ID: cloudy-tools
     steps:
 
     - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f  # v3.4.0
@@ -39,8 +41,8 @@ jobs:
         service_account: metrics-github-actions-user@cloudy-tools.iam.gserviceaccount.com
 
     - id: record
-      uses: mchmarny/gcp-metrics@main  # pinned to digest in real use
+      uses: mchmarny/gcp-metrics@sha256:e928750c15ea217e747fb06045d76b810e3e297e9ba0985a0376656cf3ed5b25
       with:
-        project: cloudy-tools
+        project: ${{ env.PROJECT_ID }}}
         metric: ${{ inputs.metric }}
         value: ${{ inputs.value }}
