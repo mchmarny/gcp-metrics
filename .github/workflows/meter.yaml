@@ -40,11 +40,11 @@ jobs:
 
     - uses: google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d  # v1.0.0
       with:
-        workload_identity_provider: ${{ env.IDENTITY_PROVIDER }}}
-        service_account: ${{ env.SERVICE_ACCOUNT }}}
+        workload_identity_provider: ${{ env.IDENTITY_PROVIDER }}
+        service_account: ${{ env.SERVICE_ACCOUNT }}
 
     - id: record
-      uses: mchmarny/gcp-metrics@dac78e1fa8079e6638437695a9b576cba677bdbb
+      uses: mchmarny/gcp-metrics@23288be9d2c41be3711257685ee306f93bb73710
       with:
         project: ${{ env.PROJECT_ID }}}
         metric: ${{ inputs.metric }}
