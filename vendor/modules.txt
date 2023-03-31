@@ -1,4 +1,4 @@
-# cloud.google.com/go/compute v1.18.0
+# cloud.google.com/go/compute v1.19.0
 ## explicit; go 1.19
 cloud.google.com/go/compute/internal
 # cloud.google.com/go/compute/metadata v0.2.3
@@ -43,10 +43,10 @@ github.com/googleapis/gax-go/v2/internal
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.17
+# github.com/mattn/go-isatty v0.0.18
 ## explicit; go 1.15
 github.com/mattn/go-isatty
-# github.com/mchmarny/disco v1.1.0
+# github.com/mchmarny/disco v1.1.1
 ## explicit; go 1.20
 github.com/mchmarny/disco/pkg/types
 # github.com/pkg/errors v0.9.1
@@ -114,7 +114,7 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# google.golang.org/api v0.113.0
+# google.golang.org/api v0.114.0
 ## explicit; go 1.19
 google.golang.org/api/googleapi
 google.golang.org/api/internal
@@ -139,7 +139,7 @@ google.golang.org/appengine/internal/socket
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/socket
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
+# google.golang.org/genproto v0.0.0-20230330200707-38013875ee22
 ## explicit; go 1.19
 google.golang.org/genproto/googleapis/api
 google.golang.org/genproto/googleapis/api/annotations
@@ -151,7 +151,7 @@ google.golang.org/genproto/googleapis/rpc/code
 google.golang.org/genproto/googleapis/rpc/errdetails
 google.golang.org/genproto/googleapis/rpc/status
 google.golang.org/genproto/googleapis/type/calendarperiod
-# google.golang.org/grpc v1.53.0
+# google.golang.org/grpc v1.54.0
 ## explicit; go 1.17
 google.golang.org/grpc
 google.golang.org/grpc/attributes
