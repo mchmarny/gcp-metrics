@@ -64,7 +64,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f  # v3.4.0
 
-    - uses: slsa-framework/slsa-verifier/actions/installer@a43888265e1f6aae98c924538298944f2721dcf0  # v2.0.1
+    - uses: slsa-framework/slsa-verifier/actions/installer@7e1e47d7d793930ab0082c15c2b971fdb53a3c95  # v2.4.1
 
     - name: Verify SLSA Provenance
       run: |-
