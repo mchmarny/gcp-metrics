@@ -67,9 +67,10 @@ github.com/sethvargo/go-envconfig
 # github.com/sethvargo/go-githubactions v1.1.0
 ## explicit; go 1.18
 github.com/sethvargo/go-githubactions
-# github.com/stretchr/testify v1.8.2
-## explicit; go 1.13
+# github.com/stretchr/testify v1.10.0
+## explicit; go 1.17
 github.com/stretchr/testify/assert
+github.com/stretchr/testify/assert/yaml
 # go.opencensus.io v0.24.0
 ## explicit; go 1.13
 go.opencensus.io
