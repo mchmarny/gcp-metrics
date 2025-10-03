@@ -1,6 +1,6 @@
 module github.com/mchmarny/gcp-metrics
 
-go 1.20
+go 1.23
 
 require (
 	cloud.google.com/go/monitoring v1.13.0
@@ -10,7 +10,7 @@ require (
 	github.com/sethvargo/go-githubactions v1.1.0
 	github.com/stretchr/testify v1.8.2
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/protobuf v1.36.10
 )
 
 require (
@@ -19,7 +19,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.8.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
